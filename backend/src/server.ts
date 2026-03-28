@@ -44,6 +44,9 @@ io.on('connection', (socket) => {
 // Disponibilizar io para as rotas emitirem eventos
 app.set('io', io);
 
+// Trust proxy (Hostinger proxy reverso)
+app.set('trust proxy', 1);
+
 // Seguranca
 app.use(helmet());
 app.use(cors());
