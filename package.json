@@ -1,0 +1,11 @@
+{
+  "name": "xra-autopay-pedidos",
+  "version": "1.0.0",
+  "description": "SaaS multi-tenant de pedidos para lanchonetes, pizzarias, acaiterias",
+  "private": true,
+  "scripts": {
+    "dev": "cd backend && npm run dev",
+    "build": "cd backend && npm run build && cd ../frontend && npm run build",
+    "start": "cd backend && npm run start"
+  }
+}
