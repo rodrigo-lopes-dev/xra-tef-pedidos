@@ -14,9 +14,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const primary = tenant?.cor_primaria || '#3B82F6';
   const text = tenant?.cor_texto || '#FFFFFF';
-  const accent = tenant?.cor_destaque || '#60A5FA';
 
   useEffect(() => {
     api<DashboardData>('/admin/dashboard')

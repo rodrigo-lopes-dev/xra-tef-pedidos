@@ -11,7 +11,6 @@ interface NumericKeypadProps {
 export default function NumericKeypad({ value, onChange, maxLength = 4, placeholder = '00', label }: NumericKeypadProps) {
   const { tenant } = useTenant();
   const primary = tenant?.cor_primaria || '#3B82F6';
-  const secondary = tenant?.cor_secundaria || '#1E40AF';
   const bg = tenant?.cor_fundo || '#0F172A';
   const text = tenant?.cor_texto || '#FFFFFF';
   const accent = tenant?.cor_destaque || '#60A5FA';

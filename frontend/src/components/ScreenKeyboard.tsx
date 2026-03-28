@@ -78,7 +78,7 @@ export default function ScreenKeyboard({ value, onChange, maxLength = 200, place
     return 'auto';
   }
 
-  function getKeyLabel(key: string): string | JSX.Element {
+  function getKeyLabel(key: string): string | React.ReactNode {
     if (key === 'SHIFT') return shift ? '⬆' : '⇧';
     if (key === 'SPACE') return '               ';
     if (key === 'ENTER') return '↵';

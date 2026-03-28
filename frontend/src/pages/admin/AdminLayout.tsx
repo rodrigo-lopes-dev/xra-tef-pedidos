@@ -18,7 +18,7 @@ const TABS = [
 
 export default function AdminLayout() {
   const { tenant } = useTenant();
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
 

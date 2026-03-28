@@ -40,7 +40,7 @@ export default function VendedorPage() {
   const navigate = useNavigate();
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [, setSocket] = useState<Socket | null>(null);
 
   const primary = tenant?.cor_primaria || '#3B82F6';
   const secondary = tenant?.cor_secundaria || '#1E40AF';

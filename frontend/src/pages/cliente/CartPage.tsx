@@ -16,7 +16,7 @@ export default function CartPage() {
   const [nomeCliente, setNomeCliente] = useState('');
   const [tipoPagamento, setTipoPagamento] = useState<'dinheiro' | 'credito' | 'debito' | 'voucher'>('dinheiro');
   const [observacao, setObservacao] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [pedidoCriado, setPedidoCriado] = useState<{ numero_pedido: string; codigo_comanda: string } | null>(null);
   const [keyboard, setKeyboard] = useState<KeyboardMode>(null);
 
@@ -79,8 +79,6 @@ export default function CartPage() {
       bg={bg}
       text={text}
       accent={accent}
-      primary={primary}
-      secondary={secondary}
       numeroPager={numeroPager}
       nomeCliente={nomeCliente}
       navigate={navigate}
@@ -453,9 +451,9 @@ export default function CartPage() {
 // =============================================
 // Componente de sucesso com auto-redirect
 // =============================================
-function SuccessScreen({ pedido, bg, text, accent, primary, secondary, numeroPager, nomeCliente, navigate }: {
+function SuccessScreen({ pedido, bg, text, accent, numeroPager, nomeCliente, navigate }: {
   pedido: { numero_pedido: string; codigo_comanda: string };
-  bg: string; text: string; accent: string; primary: string; secondary: string;
+  bg: string; text: string; accent: string;
   numeroPager: string; nomeCliente: string;
   navigate: (path: string) => void;
 }) {
