@@ -69,6 +69,13 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Servir frontend em producao
+const frontendPath = path.resolve(__dirname, '../../frontend/dist');
+app.use(express.static(frontendPath));
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
+
 // Start
 const PORT = Number(process.env.PORT) || 2930;
 
