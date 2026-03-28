@@ -2,7 +2,9 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 
-// Garantir que .env esta carregado (pode ser importado antes do server.ts)
+// Tentar carregar .env de varios caminhos possiveis
+// PM2 roda da raiz do projeto, dev roda de backend/
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
 
 const supabaseUrl = process.env.SUPABASE_URL;
