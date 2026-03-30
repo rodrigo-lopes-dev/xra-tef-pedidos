@@ -10,7 +10,7 @@ const STATUS_VALIDOS = ['novo', 'preparando', 'pronto', 'entregue', 'cancelado']
 export async function listOrders(req: Request, res: Response): Promise<void> {
   try {
     let query = supabase
-      .from('ap_pedidos')
+      .from('pedidos')
       .select('id, numero_pedido, codigo_comanda, numero_pager, nome_cliente, status, tipo_pagamento, total, observacao, created_at, updated_at')
       .eq('tenant_id', req.tenant.id)
       .order('created_at', { ascending: false });
@@ -50,7 +50,7 @@ export async function listOrders(req: Request, res: Response): Promise<void> {
 export async function getOrderDetail(req: Request, res: Response): Promise<void> {
   try {
     const { data: pedido, error } = await supabase
-      .from('ap_pedidos')
+      .from('pedidos')
       .select('*')
       .eq('tenant_id', req.tenant.id)
       .eq('id', req.params.id)
@@ -62,7 +62,7 @@ export async function getOrderDetail(req: Request, res: Response): Promise<void>
     }
 
     const { data: itens } = await supabase
-      .from('ap_itens_pedido')
+      .from('itens_pedido')
       .select('*')
       .eq('pedido_id', pedido.id)
       .eq('tenant_id', req.tenant.id);
@@ -88,7 +88,7 @@ export async function updateOrderStatus(req: Request, res: Response): Promise<vo
     }
 
     const { data, error } = await supabase
-      .from('ap_pedidos')
+      .from('pedidos')
       .update({ status, updated_at: new Date().toISOString() })
       .eq('tenant_id', req.tenant.id)
       .eq('id', req.params.id)

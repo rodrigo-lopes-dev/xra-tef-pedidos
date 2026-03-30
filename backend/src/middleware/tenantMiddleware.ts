@@ -94,7 +94,7 @@ export async function tenantMiddleware(
 
     if (!tenant) {
       const { data, error } = await supabase
-        .from('ap_tenants')
+        .from('tenants')
         .select('*')
         .eq('slug', slug.toLowerCase())
         .eq('status', 'ativo')

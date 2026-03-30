@@ -49,7 +49,29 @@ app.set('trust proxy', 1);
 
 // Seguranca
 app.use(helmet());
-app.use(cors());
+
+// CORS restrito - so aceita *.xrtec1.com + localhost em dev
+app.use(cors({
+  origin: (origin, callback) => {
+    // Requests sem origin (app mobile, curl, server-to-server) passam
+    if (!origin) return callback(null, true);
+
+    // Aceita qualquer subdominio de xrtec1.com
+    const isAllowed = origin.endsWith('.xrtec1.com') || origin === 'https://xrtec1.com';
+
+    // Em dev, aceita localhost
+    const isDev = process.env.NODE_ENV === 'development' && origin.includes('localhost');
+
+    if (isAllowed || isDev) {
+      callback(null, true);
+    } else {
+      console.warn(`[CORS] Origem bloqueada: ${origin}`);
+      callback(new Error('Nao permitido pelo CORS'));
+    }
+  },
+  credentials: true,
+}));
+
 app.use(express.json({ limit: '5mb' }));
 
 // Rate limiting global
@@ -80,7 +102,7 @@ app.get('*', (_req, res) => {
 });
 
 // Start
-const PORT = Number(process.env.PORT) || 2930;
+const PORT = Number(process.env.PORT) || 5500;
 
 server.listen(PORT, () => {
   console.log(`[XRA AutoPay] Servidor rodando na porta ${PORT}`);
