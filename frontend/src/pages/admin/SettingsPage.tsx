@@ -22,7 +22,8 @@ export default function SettingsPage() {
     setMsg('');
     try {
       await api('/admin/settings', { method: 'PUT', body: JSON.stringify(settings) });
-      setMsg('Configuracoes salvas! Recarregue a pagina para ver as mudancas.');
+      // Recarregar pra aplicar novas cores
+      window.location.reload();
     } catch (err: any) {
       setMsg('Erro: ' + err.message);
     } finally {
