@@ -103,33 +103,15 @@ export async function tenantMiddleware(
     let tenant = getCached(slug);
 
     if (!tenant) {
-      // Buscar por codigo aleatorio OU slug
-      const searchValue = slug.toUpperCase();
       const { data, error } = await supabase
-        .from('tenants')
+        .from('ap_tenants')
         .select('*')
-        .or(`codigo.eq.${searchValue},slug.eq.${slug.toLowerCase()}`)
+        .eq('slug', slug.toLowerCase())
+        .eq('status', 'ativo')
         .single();
 
       if (error || !data) {
         res.status(404).json({ error: 'Estabelecimento nao encontrado' });
-        return;
-      }
-
-      // Verificar status do pagamento
-      if (data.status === 'suspenso') {
-        res.status(403).json({
-          error: 'Acesso suspenso por falta de pagamento. Entre em contato com o suporte.',
-          code: 'PAYMENT_SUSPENDED'
-        });
-        return;
-      }
-
-      if (data.status !== 'ativo') {
-        res.status(403).json({
-          error: 'Estabelecimento inativo.',
-          code: 'INACTIVE'
-        });
         return;
       }
 

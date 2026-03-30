@@ -27,7 +27,7 @@ export async function login(
 ): Promise<LoginResult> {
   // 1. Buscar usuario pelo tenant + nome de usuario
   const { data: user, error } = await supabase
-    .from('usuarios')
+    .from('ap_usuarios')
     .select('id, tenant_id, nome, usuario, senha_hash, tipo, ativo')
     .eq('tenant_id', tenantId)
     .eq('usuario', usuario)

@@ -36,7 +36,7 @@ export async function getTenantConfig(req: Request, res: Response): Promise<void
 export async function getCategories(req: Request, res: Response): Promise<void> {
   try {
     const { data, error } = await supabase
-      .from('categorias')
+      .from('ap_categorias')
       .select('id, nome, imagem, ordem')
       .eq('tenant_id', req.tenant.id)
       .eq('ativo', true)
@@ -63,7 +63,7 @@ export async function getCategories(req: Request, res: Response): Promise<void> 
 export async function getProducts(req: Request, res: Response): Promise<void> {
   try {
     let query = supabase
-      .from('produtos')
+      .from('ap_produtos')
       .select('id, categoria_id, nome, descricao, preco, imagem, destaque, ordem')
       .eq('tenant_id', req.tenant.id)
       .eq('ativo', true)
@@ -97,7 +97,7 @@ export async function getProducts(req: Request, res: Response): Promise<void> {
 export async function getProductById(req: Request, res: Response): Promise<void> {
   try {
     const { data, error } = await supabase
-      .from('produtos')
+      .from('ap_produtos')
       .select('id, categoria_id, nome, descricao, preco, imagem, destaque')
       .eq('tenant_id', req.tenant.id)
       .eq('id', req.params.id)
@@ -123,7 +123,7 @@ export async function getProductById(req: Request, res: Response): Promise<void>
 export async function getExtras(req: Request, res: Response): Promise<void> {
   try {
     let query = supabase
-      .from('adicionais')
+      .from('ap_adicionais')
       .select('id, nome, preco, ordem')
       .eq('tenant_id', req.tenant.id)
       .eq('ativo', true)

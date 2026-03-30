@@ -8,7 +8,7 @@ import { supabase } from '../config/supabase';
 export async function listProducts(req: Request, res: Response): Promise<void> {
   try {
     const { data, error } = await supabase
-      .from('produtos')
+      .from('ap_produtos')
       .select('id, categoria_id, nome, descricao, preco, imagem, ativo, destaque, ordem, created_at')
       .eq('tenant_id', req.tenant.id)
       .order('ordem', { ascending: true });
@@ -24,7 +24,7 @@ export async function createProduct(req: Request, res: Response): Promise<void> 
     if (!nome || preco === undefined) { res.status(400).json({ error: 'Nome e preco sao obrigatorios' }); return; }
 
     const { data, error } = await supabase
-      .from('produtos')
+      .from('ap_produtos')
       .insert({ tenant_id: req.tenant.id, nome, descricao, preco, imagem, categoria_id, ativo: ativo ?? true, destaque: destaque ?? false, ordem: ordem ?? 0 })
       .select()
       .single();
@@ -39,7 +39,7 @@ export async function updateProduct(req: Request, res: Response): Promise<void> 
     const { nome, descricao, preco, imagem, categoria_id, ativo, destaque, ordem } = req.body;
 
     const { data, error } = await supabase
-      .from('produtos')
+      .from('ap_produtos')
       .update({ nome, descricao, preco, imagem, categoria_id, ativo, destaque, ordem })
       .eq('tenant_id', req.tenant.id)
       .eq('id', req.params.id)
@@ -54,7 +54,7 @@ export async function updateProduct(req: Request, res: Response): Promise<void> 
 export async function deleteProduct(req: Request, res: Response): Promise<void> {
   try {
     const { error } = await supabase
-      .from('produtos')
+      .from('ap_produtos')
       .delete()
       .eq('tenant_id', req.tenant.id)
       .eq('id', req.params.id);
@@ -71,7 +71,7 @@ export async function deleteProduct(req: Request, res: Response): Promise<void> 
 export async function listCategories(req: Request, res: Response): Promise<void> {
   try {
     const { data, error } = await supabase
-      .from('categorias')
+      .from('ap_categorias')
       .select('id, nome, imagem, ordem, ativo, created_at')
       .eq('tenant_id', req.tenant.id)
       .order('ordem', { ascending: true });
@@ -87,7 +87,7 @@ export async function createCategory(req: Request, res: Response): Promise<void>
     if (!nome) { res.status(400).json({ error: 'Nome e obrigatorio' }); return; }
 
     const { data, error } = await supabase
-      .from('categorias')
+      .from('ap_categorias')
       .insert({ tenant_id: req.tenant.id, nome, imagem, ordem: ordem ?? 0, ativo: ativo ?? true })
       .select()
       .single();
@@ -102,7 +102,7 @@ export async function updateCategory(req: Request, res: Response): Promise<void>
     const { nome, imagem, ordem, ativo } = req.body;
 
     const { data, error } = await supabase
-      .from('categorias')
+      .from('ap_categorias')
       .update({ nome, imagem, ordem, ativo })
       .eq('tenant_id', req.tenant.id)
       .eq('id', req.params.id)
@@ -117,7 +117,7 @@ export async function updateCategory(req: Request, res: Response): Promise<void>
 export async function deleteCategory(req: Request, res: Response): Promise<void> {
   try {
     const { error } = await supabase
-      .from('categorias')
+      .from('ap_categorias')
       .delete()
       .eq('tenant_id', req.tenant.id)
       .eq('id', req.params.id);
@@ -134,7 +134,7 @@ export async function deleteCategory(req: Request, res: Response): Promise<void>
 export async function listExtras(req: Request, res: Response): Promise<void> {
   try {
     const { data, error } = await supabase
-      .from('adicionais')
+      .from('ap_adicionais')
       .select('id, nome, preco, ordem, ativo, categoria_id, created_at')
       .eq('tenant_id', req.tenant.id)
       .order('ordem', { ascending: true });
@@ -150,7 +150,7 @@ export async function createExtra(req: Request, res: Response): Promise<void> {
     if (!nome || preco === undefined) { res.status(400).json({ error: 'Nome e preco sao obrigatorios' }); return; }
 
     const { data, error } = await supabase
-      .from('adicionais')
+      .from('ap_adicionais')
       .insert({ tenant_id: req.tenant.id, nome, preco, ordem: ordem ?? 0, ativo: ativo ?? true, categoria_id })
       .select()
       .single();
@@ -165,7 +165,7 @@ export async function updateExtra(req: Request, res: Response): Promise<void> {
     const { nome, preco, ordem, ativo, categoria_id } = req.body;
 
     const { data, error } = await supabase
-      .from('adicionais')
+      .from('ap_adicionais')
       .update({ nome, preco, ordem, ativo, categoria_id })
       .eq('tenant_id', req.tenant.id)
       .eq('id', req.params.id)
@@ -180,7 +180,7 @@ export async function updateExtra(req: Request, res: Response): Promise<void> {
 export async function deleteExtra(req: Request, res: Response): Promise<void> {
   try {
     const { error } = await supabase
-      .from('adicionais')
+      .from('ap_adicionais')
       .delete()
       .eq('tenant_id', req.tenant.id)
       .eq('id', req.params.id);
@@ -197,7 +197,7 @@ export async function deleteExtra(req: Request, res: Response): Promise<void> {
 export async function getSettings(req: Request, res: Response): Promise<void> {
   try {
     const { data, error } = await supabase
-      .from('tenants')
+      .from('ap_tenants')
       .select('*')
       .eq('id', req.tenant.id)
       .single();
@@ -234,7 +234,7 @@ export async function updateSettings(req: Request, res: Response): Promise<void>
     updates.updated_at = new Date().toISOString();
 
     const { data, error } = await supabase
-      .from('tenants')
+      .from('ap_tenants')
       .update(updates)
       .eq('id', req.tenant.id)
       .select()
@@ -255,7 +255,7 @@ export async function getDailySales(req: Request, res: Response): Promise<void> 
     hoje.setHours(0, 0, 0, 0);
 
     const { data, error } = await supabase
-      .from('pedidos')
+      .from('ap_pedidos')
       .select('id, total, status, tipo_pagamento, created_at')
       .eq('tenant_id', req.tenant.id)
       .gte('created_at', hoje.toISOString());

@@ -28,7 +28,7 @@ async function gerarNumeroPedido(tenantId: string): Promise<string> {
 
   // Buscar ultimo pedido do dia
   const { data } = await supabase
-    .from('pedidos')
+    .from('ap_pedidos')
     .select('numero_pedido')
     .eq('tenant_id', tenantId)
     .like('numero_pedido', `${prefix}%`)
@@ -87,7 +87,7 @@ export async function criarPedido(input: CreateOrderInput) {
 
   // Criar pedido
   const { data: pedido, error: pedidoError } = await supabase
-    .from('pedidos')
+    .from('ap_pedidos')
     .insert({
       tenant_id: tenantId,
       numero_pedido,
@@ -115,7 +115,7 @@ export async function criarPedido(input: CreateOrderInput) {
   }));
 
   const { error: itensError } = await supabase
-    .from('itens_pedido')
+    .from('ap_itens_pedido')
     .insert(itensComPedidoId);
 
   if (itensError) {
