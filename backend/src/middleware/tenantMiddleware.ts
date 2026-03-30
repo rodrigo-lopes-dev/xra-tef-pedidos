@@ -70,9 +70,19 @@ export async function tenantMiddleware(
     const host = req.hostname;
     let slug = host.split('.')[0];
 
-    // Fallback para desenvolvimento local (localhost nao tem subdominio)
-    if (slug === 'localhost' || slug === '127') {
-      slug = (req.headers['x-tenant-slug'] as string) || '';
+    // Header X-Tenant-Slug tem prioridade (app mobile, API direta)
+    const headerSlug = req.headers['x-tenant-slug'] as string;
+    if (headerSlug) {
+      slug = headerSlug;
+    }
+
+    // Fallback para desenvolvimento local
+    if (slug === 'localhost' || slug === '127' || slug === 'api') {
+      if (!headerSlug) {
+        res.status(400).json({ error: 'Header X-Tenant-Slug obrigatorio' });
+        return;
+      }
+      slug = headerSlug;
     }
 
     // 2. Validar slug
