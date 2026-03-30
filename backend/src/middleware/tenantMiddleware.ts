@@ -58,6 +58,10 @@ function setCache(slug: string, tenant: Tenant): void {
   tenantCache.set(slug, { tenant, cachedAt: Date.now() });
 }
 
+export function clearTenantCache(): void {
+  tenantCache.clear();
+}
+
 export async function tenantMiddleware(
   req: Request,
   res: Response,

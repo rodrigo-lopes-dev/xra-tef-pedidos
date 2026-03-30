@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { supabase } from '../config/supabase';
+import { clearTenantCache } from '../middleware/tenantMiddleware';
 
 // =============================================
 // PRODUTOS
@@ -241,6 +242,10 @@ export async function updateSettings(req: Request, res: Response): Promise<void>
       .single();
 
     if (error || !data) { res.status(500).json({ error: 'Erro ao atualizar configuracoes' }); return; }
+
+    // Limpar cache do tenant pra aplicar mudancas imediatamente
+    clearTenantCache();
+
     res.json(data);
   } catch (err) { res.status(500).json({ error: 'Erro interno' }); }
 }
