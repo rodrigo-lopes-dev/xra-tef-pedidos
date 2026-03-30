@@ -97,11 +97,27 @@ export async function tenantMiddleware(
         .from('tenants')
         .select('*')
         .eq('slug', slug.toLowerCase())
-        .eq('status', 'ativo')
         .single();
 
       if (error || !data) {
         res.status(404).json({ error: 'Estabelecimento nao encontrado' });
+        return;
+      }
+
+      // Verificar status do pagamento
+      if (data.status === 'suspenso') {
+        res.status(403).json({
+          error: 'Acesso suspenso por falta de pagamento. Entre em contato com o suporte.',
+          code: 'PAYMENT_SUSPENDED'
+        });
+        return;
+      }
+
+      if (data.status !== 'ativo') {
+        res.status(403).json({
+          error: 'Estabelecimento inativo.',
+          code: 'INACTIVE'
+        });
         return;
       }
 
