@@ -70,26 +70,26 @@ export async function tenantMiddleware(
     const host = req.hostname;
     let slug = host.split('.')[0];
 
-    // Header X-Tenant-Slug tem prioridade (app mobile, API direta)
-    const headerSlug = req.headers['x-tenant-slug'] as string;
-    if (headerSlug) {
-      slug = headerSlug;
+    // Header X-Tenant-Code tem prioridade (app mobile, API direta)
+    // Aceita codigo aleatorio (ex: X7K9M2) ou slug (ex: demo)
+    const headerCode = (req.headers['x-tenant-code'] as string || req.headers['x-tenant-slug'] as string || '').trim();
+
+    if (headerCode) {
+      slug = headerCode;
     }
 
-    // Fallback para desenvolvimento local
+    // Fallback para desenvolvimento local ou API
     if (slug === 'localhost' || slug === '127' || slug === 'api') {
-      if (!headerSlug) {
-        res.status(400).json({ error: 'Header X-Tenant-Slug obrigatorio' });
+      if (!headerCode) {
+        res.status(400).json({ error: 'Header X-Tenant-Code obrigatorio' });
         return;
       }
-      slug = headerSlug;
+      slug = headerCode;
     }
 
-    // 2. Validar slug
+    // 2. Validar slug/codigo
     if (!slug || slug === 'autopay' || slug === 'www') {
-      res.status(404).json({
-        error: 'Acesse pelo subdominio do seu estabelecimento. Ex: suaempresa.autopay.xrtec1.com',
-      });
+      res.status(404).json({ error: 'Codigo do estabelecimento invalido' });
       return;
     }
 
@@ -103,10 +103,12 @@ export async function tenantMiddleware(
     let tenant = getCached(slug);
 
     if (!tenant) {
+      // Buscar por codigo aleatorio OU slug
+      const searchValue = slug.toUpperCase();
       const { data, error } = await supabase
         .from('tenants')
         .select('*')
-        .eq('slug', slug.toLowerCase())
+        .or(`codigo.eq.${searchValue},slug.eq.${slug.toLowerCase()}`)
         .single();
 
       if (error || !data) {
