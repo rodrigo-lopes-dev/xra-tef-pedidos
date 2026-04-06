@@ -530,7 +530,7 @@ def health_check():
             'printer': PRINTER_NAME,
             'printers_disponiveis': printers,
             'tef_mode': 'MOCK' if TEF_MOCK_MODE else 'PRODUCAO',
-            'tef_websocket': TEF_WEBSOCKET_URL,
+            'tef_api': STONE_API_URL,
             'timestamp': datetime.now().isoformat()
         }), 200
     except Exception as e:

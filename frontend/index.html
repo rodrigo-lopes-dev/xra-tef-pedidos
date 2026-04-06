@@ -1,13 +1,39 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>XRA AutoPay</title>
+    <style>
+      /* Bloquear zoom e selecao no totem */
+      * { touch-action: manipulation; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+      input, textarea { user-select: text; -webkit-user-select: text; }
+      body { overscroll-behavior: none; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Bloquear zoom via teclado (Ctrl+/Ctrl-)
+      document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '0')) e.preventDefault();
+        // Bloquear F11, F5, Ctrl+R
+        if (e.key === 'F11' || e.key === 'F5' || ((e.ctrlKey || e.metaKey) && e.key === 'r')) e.preventDefault();
+      });
+      // Bloquear zoom via scroll (Ctrl+scroll)
+      document.addEventListener('wheel', function(e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+      // Bloquear menu de contexto (botao direito)
+      document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+      // Fullscreen automatico ao primeiro toque
+      document.addEventListener('click', function fs() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(function(){});
+        }
+        document.removeEventListener('click', fs);
+      }, { once: true });
+    </script>
   </body>
 </html>
