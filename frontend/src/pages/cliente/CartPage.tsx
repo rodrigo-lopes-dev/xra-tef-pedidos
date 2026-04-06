@@ -386,7 +386,21 @@ export default function CartPage() {
 
           {/* Botao finalizar — abre modal de pagamento */}
           <button
-            onClick={() => setKeyboard('pagamento' as KeyboardMode)}
+            onClick={() => {
+              const pagerOk = numeroPager.trim().length > 0;
+              const nomeOk = nomeCliente.trim().length > 0;
+              const ok =
+                modoChamada === 'pager' ? pagerOk :
+                modoChamada === 'nome' ? nomeOk :
+                pagerOk || nomeOk;
+              if (!ok) {
+                // Abrir o teclado correto pra preencher
+                if (modoChamada === 'pager' || modoChamada === 'ambos') setKeyboard('pager');
+                else setKeyboard('nome');
+                return;
+              }
+              setKeyboard('pagamento' as KeyboardMode);
+            }}
             style={{
               width: '100%', padding: '22px', borderRadius: '14px', border: 'none',
               background: `linear-gradient(135deg, ${primary}, ${secondary})`,
