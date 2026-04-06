@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+/* Tema dinamico — cores default, sobrescritas pelo TenantContext via API */
+:root {
+  --color-primary: #3B82F6;
+  --color-secondary: #1E40AF;
+  --color-background: #0F172A;
+  --color-text: #FFFFFF;
+  --color-accent: #60A5FA;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Glow effect reutilizavel */
+.glow-primary {
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+}
+.glow-primary-soft {
+  box-shadow: 0 0 60px rgba(59, 130, 246, 0.1);
+}
+
+/* Scrollbar estilizada */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-secondary);
+  border-radius: 3px;
+}
