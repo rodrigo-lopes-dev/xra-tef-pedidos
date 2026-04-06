@@ -8,7 +8,7 @@ Servidor local (Python Flask) que roda no **PC da lanchonete/totem**, responsave
 3. **Heartbeat** pro painel de monitoramento XRTec
 4. **Log de transacoes** enviado pro painel XRTec
 
-**Porta:** 5555 (HTTP, localhost)
+**Porta:** 5556 (HTTP, localhost)
 **Stack:** Python 3.10+ / Flask / Flask-CORS / pywin32 / requests
 
 ---
@@ -18,14 +18,14 @@ Servidor local (Python Flask) que roda no **PC da lanchonete/totem**, responsave
 ```
 [TOTEM/PC LOCAL]
   ├── Frontend React (navegador)         → porta 80 (via VPS)
-  ├── print_server_elgin.py              → porta 5555 (localhost)
+  ├── print_server_elgin.py              → porta 5556 (localhost)
   ├── Stone AutoTEF.Service.exe          → porta 8000 (localhost)
   └── Impressora ELGIN i8 (USB)
 
 [VPS - 31.97.151.194]
   ├── Backend Node.js (PM2)              → porta 5300
   ├── N8N (Docker)                       → porta 5678
-  └── Tunel SSH reverso                  → porta 5555 (espelhada do PC)
+  └── Tunel SSH reverso                  → porta 5556 (espelhada do PC)
 ```
 
 ### Tunel SSH Reverso
@@ -33,18 +33,18 @@ Servidor local (Python Flask) que roda no **PC da lanchonete/totem**, responsave
 O cliente usa **rede domestica** (IP dinamico, sem porta aberta). Para o N8N na VPS conseguir chamar o print server no PC local, usamos um **tunel SSH reverso**:
 
 ```
-PC Local (porta 5555) ← SSH reverso → VPS (porta 5555)
+PC Local (porta 5556) ← SSH reverso → VPS (porta 5556)
 ```
 
-- O PC local conecta na VPS via SSH e "espelha" a porta 5555
-- O N8N (que roda na VPS via Docker) chama `localhost:5555` e cai no PC do cliente
-- A porta 5555 esta **bloqueada** no IP publico da VPS (iptables) - so acessivel pela rede Docker (172.21.0.0/16)
+- O PC local conecta na VPS via SSH e "espelha" a porta 5556
+- O N8N (que roda na VPS via Docker) chama `localhost:5556` e cai no PC do cliente
+- A porta 5556 esta **bloqueada** no IP publico da VPS (iptables) - so acessivel pela rede Docker (172.21.0.0/16)
 - Chave SSH ed25519 dedicada (sem senha, so pra tunel)
 - Script `tunel_ssh.bat` mantem a conexao ativa com reconexao automatica (loop + ServerAliveInterval)
 
 **Arquivo:** `tunel_ssh.bat`
 ```bat
-ssh -R 0.0.0.0:5555:127.0.0.1:5555 root@31.97.151.194 -N -i "%USERPROFILE%\.ssh\tunel_shaka"
+ssh -R 0.0.0.0:5556:127.0.0.1:5556 root@31.97.151.194 -N -i "%USERPROFILE%\.ssh\tunel_shaka"
     -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes
 ```
 
@@ -65,7 +65,7 @@ Chave no banco: `pagamento_maquininha_ativo` (tabela configs no Supabase)
 ```
 1. Cliente monta pedido no totem
 2. Escolhe forma: CREDITO / DEBITO / VOUCHER / PIX
-3. Se cartao → Frontend chama localhost:5555/tef/venda
+3. Se cartao → Frontend chama localhost:5556/tef/venda
 4. Print server chama Stone localhost:8000/api/Pay
 5. Cliente aproxima/insere cartao na maquininha
 6. Stone responde aprovado/negado
@@ -96,7 +96,7 @@ Chave no banco: `pagamento_maquininha_ativo` (tabela configs no Supabase)
 Backend cria pedido
   → Webhook N8N (POST)
   → N8N formata dados da comanda
-  → N8N chama POST http://localhost:5555/print (via tunel SSH)
+  → N8N chama POST http://localhost:5556/print (via tunel SSH)
   → Print server recebe JSON com dados do pedido
   → Formata em comandos ESC/POS
   → Envia RAW pra impressora via win32print
@@ -135,7 +135,7 @@ Backend cria pedido
 O print server atua como **proxy** entre o frontend e a maquininha Stone:
 
 ```
-Frontend → POST localhost:5555/tef/venda → Print Server → POST localhost:8000/api/Pay → Stone
+Frontend → POST localhost:5556/tef/venda → Print Server → POST localhost:8000/api/Pay → Stone
 ```
 
 O frontend NAO fala direto com a Stone. Sempre passa pelo print server.
@@ -312,9 +312,9 @@ pip install flask flask-cors pywin32 requests
 
 ## Seguranca
 
-- Print server so aceita conexoes **locais** (localhost:5555)
+- Print server so aceita conexoes **locais** (localhost:5556)
 - Tunel SSH com chave ed25519 (sem senha)
-- Porta 5555 bloqueada no IP publico da VPS (iptables)
+- Porta 5556 bloqueada no IP publico da VPS (iptables)
 - So acessivel pela rede Docker (N8N) na VPS
 - Chave da Woovi e Stone ficam no servidor, nunca no frontend
 - Cancelamento/estorno so via admin autenticado

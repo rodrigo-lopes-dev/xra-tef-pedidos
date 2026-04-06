@@ -52,7 +52,7 @@ logging.basicConfig(
 # ─────────────────────────────────────────────────────────────────────────────────
 # CONFIGURAÇÕES DA IMPRESSORA
 # ─────────────────────────────────────────────────────────────────────────────────
-PRINTER_NAME = "ELGIN i8 (copy 1)"
+PRINTER_NAME = "EPSON TM-T20 Receipt"
 COMANDA_WIDTH = 42  # 42 caracteres para 80mm
 
 # ─────────────────────────────────────────────────────────────────────────────────
@@ -60,7 +60,7 @@ COMANDA_WIDTH = 42  # 42 caracteres para 80mm
 # ─────────────────────────────────────────────────────────────────────────────────
 TEF_MOCK_MODE = False  # PRODUCAO - Maquininha conectada
 STONE_API_URL = "http://localhost:8000"  # AutoTEF Slim REST API
-STONE_CODE = "101903756"  # Stonecode PRODUCAO (Shaka Laka)
+STONE_CODE = ""  # Configurar com o Stonecode do cliente
 STONE_PARTNER_NAME = "XRA AutoPay"
 TEF_TIMEOUT = 120  # Timeout em segundos (2 minutos para cliente passar cartão)
 
@@ -305,87 +305,75 @@ def linha_sep(char='=', largura=COMANDA_WIDTH):
     return char * largura
 
 def formatar_comanda_escpos(data):
-    """Formata comanda em comandos ESC/POS"""
+    """Formata comanda em comandos ESC/POS (payload do XRA AutoPay)"""
     cmd = bytearray()
-    
+
     # Inicializar
     cmd.extend(INIT)
     cmd.extend(FEED(1))
-    
+
     # Cabeçalho
     cmd.extend(CENTER)
     cmd.extend(linha_sep('=').encode('cp850', errors='ignore') + b'\n')
     cmd.extend(DOUBLE)
     cmd.extend(BOLD_ON)
-    cmd.extend('XRA Shaka\n'.encode('cp850', errors='ignore'))
+    cmd.extend('XRA AutoPay\n'.encode('cp850', errors='ignore'))
     cmd.extend(NORMAL)
     cmd.extend(BOLD_OFF)
     cmd.extend('COMANDA DE PEDIDO\n'.encode('cp850', errors='ignore'))
     cmd.extend(linha_sep('=').encode('cp850', errors='ignore') + b'\n')
     cmd.extend(FEED(1))
-    
-    # Código - DESTAQUE
+
+    # Código da comanda - DESTAQUE
     cmd.extend(DOUBLE)
     cmd.extend(BOLD_ON)
     cmd.extend(f'*** {data["codigo"]} ***\n'.encode('cp850', errors='ignore'))
     cmd.extend(NORMAL)
     cmd.extend(BOLD_OFF)
     cmd.extend(FEED(1))
-    
-    # Informações
+
+    # Informações do pedido
     cmd.extend(LEFT)
-    
-    # ✅ MELHORAR FORMATO DO PEDIDO - Mostrar apenas número final
-    telefone_raw = data.get("telefone_raw", "")
+
     numero_pedido = data["numero_pedido"]
-    
-    # Extrair apenas os últimos 3 dígitos de QUALQUER tipo de pedido
-    # Formato: #20251119-123 → 123
     partes = numero_pedido.split('-')
     numero_simples = partes[-1] if len(partes) > 1 else numero_pedido.replace('#', '')
-    
-    if telefone_raw == "PIX_ONLINE":
-        # PEDIDO ONLINE
-        cmd.extend(f'PEDIDO ONLINE #{numero_simples}\n'.encode('cp850', errors='ignore'))
-    elif telefone_raw.startswith("PAGER"):
-        # PEDIDO PAGER
-        cmd.extend(f'PEDIDO PAGER #{numero_simples}\n'.encode('cp850', errors='ignore'))
-    else:
-        # PEDIDO WHATSAPP
-        cmd.extend(f'PEDIDO #{numero_simples}\n'.encode('cp850', errors='ignore'))
-    
+
+    cmd.extend(f'PEDIDO #{numero_simples}\n'.encode('cp850', errors='ignore'))
     cmd.extend(f'Data: {data["data_hora"]}\n'.encode('cp850', errors='ignore'))
+
+    # Tipo de pagamento
+    tipo_pag = data.get("tipo_pagamento", "")
+    if tipo_pag:
+        cmd.extend(f'Pagamento: {tipo_pag.upper()}\n'.encode('cp850', errors='ignore'))
+
     cmd.extend(FEED(1))
-    
-    # ✅ NOME DO CLIENTE - GRANDE e DESTAQUE
+
+    # NOME DO CLIENTE - GRANDE e DESTAQUE
     nome_cliente = data.get("nome_cliente", "")
-    if nome_cliente and nome_cliente not in ['Cliente Online', 'PIX_ONLINE']:
+    if nome_cliente:
         cmd.extend(DOUBLE)
         cmd.extend(BOLD_ON)
         cmd.extend(f'CLIENTE: {nome_cliente}\n'.encode('cp850', errors='ignore'))
         cmd.extend(NORMAL)
         cmd.extend(BOLD_OFF)
         cmd.extend(FEED(1))
-    
-    # Pager (apenas se for pedido de PAGER) - GRANDE e DESTAQUE
-    if telefone_raw.startswith("PAGER"):
+
+    # PAGER - GRANDE e DESTAQUE
+    numero_pager = data.get("numero_pager", "")
+    if numero_pager:
         cmd.extend(DOUBLE)
         cmd.extend(BOLD_ON)
-        # É um pager, extrair o número
-        numero_pager = telefone_raw.replace("PAGER", "")
         cmd.extend(f'PAGER: #{numero_pager}\n'.encode('cp850', errors='ignore'))
         cmd.extend(NORMAL)
         cmd.extend(BOLD_OFF)
-    
-    # ✅ Não mostramos mais telefone - usamos o NOME agora!
-    
-    cmd.extend(FEED(1))
+        cmd.extend(FEED(1))
+
     cmd.extend(linha_sep('-').encode('cp850', errors='ignore') + b'\n')
     cmd.extend(FEED(1))
-    
+
     # Itens
     for item in data['itens']:
-        # Nome do lanche - GRANDE e DESTACADO
         qtd = item.get('quantidade', 1) or 1
         nome_item = item.get('nome', 'Item') or 'Item'
         linha = f'{qtd}x {nome_item}\n'
@@ -394,26 +382,16 @@ def formatar_comanda_escpos(data):
         cmd.extend(linha.encode('cp850', errors='ignore'))
         cmd.extend(NORMAL)
         cmd.extend(BOLD_OFF)
-        
-        # Ponto da carne
-        ponto = item.get('ponto_carne')
-        if ponto:
-            cmd.extend(BOLD_ON)
-            ponto_str = str(ponto).upper()
-            cmd.extend(f'   Ponto: {ponto_str}\n'.encode('cp850', errors='ignore'))
-            cmd.extend(BOLD_OFF)
-        
-        # Batata frita
-        if item.get('batata_frita'):
-            cmd.extend(BOLD_ON)
-            cmd.extend('   COM BATATA FRITA (+R$ 7,90)\n'.encode('cp850', errors='ignore'))
-            cmd.extend(BOLD_OFF)
-        
-        # Adicionais (Molhos, Extras, etc)
+
+        # Preco unitario
+        preco_unit = item.get('preco_unitario', 0)
+        if preco_unit:
+            preco_fmt = f'R$ {float(preco_unit):.2f}'.replace('.', ',')
+            cmd.extend(f'   {preco_fmt} cada\n'.encode('cp850', errors='ignore'))
+
+        # Adicionais
         adicionais = item.get('adicionais') or []
-        
         if adicionais and len(adicionais) > 0:
-            cmd.extend(FEED(1))
             cmd.extend(BOLD_ON)
             cmd.extend('   ADICIONAIS:\n'.encode('cp850', errors='ignore'))
             cmd.extend(BOLD_OFF)
@@ -422,25 +400,26 @@ def formatar_comanda_escpos(data):
                 preco = ad.get('preco', 0) if isinstance(ad, dict) else 0
                 preco_fmt = f'R$ {float(preco):.2f}'.replace('.', ',')
                 cmd.extend(f'    + {nome_ad} ({preco_fmt})\n'.encode('cp850', errors='ignore'))
-        
+
         # Observacoes do item
         obs = item.get('observacoes')
         if obs:
-            cmd.extend(FEED(1))
             cmd.extend(BOLD_ON)
-            cmd.extend('   OBSERVACOES:\n'.encode('cp850', errors='ignore'))
+            cmd.extend('   OBS:\n'.encode('cp850', errors='ignore'))
             cmd.extend(BOLD_OFF)
             cmd.extend(f'   {obs}\n'.encode('cp850', errors='ignore'))
-        
+
         cmd.extend(FEED(1))
-    
-    # Observações gerais
+
+    # Observações gerais do pedido
     if data.get('observacoes_pedido'):
         cmd.extend(linha_sep('-').encode('cp850', errors='ignore') + b'\n')
+        cmd.extend(BOLD_ON)
         cmd.extend('OBSERVACOES DO PEDIDO:\n'.encode('cp850', errors='ignore'))
+        cmd.extend(BOLD_OFF)
         cmd.extend(f'{data["observacoes_pedido"]}\n'.encode('cp850', errors='ignore'))
         cmd.extend(FEED(1))
-    
+
     # Total
     cmd.extend(linha_sep('=').encode('cp850', errors='ignore') + b'\n')
     cmd.extend(CENTER)
@@ -847,7 +826,7 @@ if __name__ == '__main__':
     print('  ELGIN i8 (ESC/POS) + STONE AutoTEF Slim (REST)')
     print('=' * 60)
     print(f'Impressora: {PRINTER_NAME}')
-    print(f'Porta HTTP: 5555')
+    print(f'Porta HTTP: 5556')
     print('')
     print(f'TEF Provider: STONE AutoTEF Slim')
     print(f'TEF API: {STONE_API_URL}')
@@ -879,4 +858,4 @@ if __name__ == '__main__':
     # Iniciar heartbeat periodico pro painel XRTec (a cada 60 segundos)
     iniciar_heartbeat_periodico(60)
 
-    app.run(host='0.0.0.0', port=5555, debug=False, threaded=True)
+    app.run(host='0.0.0.0', port=5556, debug=False, threaded=True)

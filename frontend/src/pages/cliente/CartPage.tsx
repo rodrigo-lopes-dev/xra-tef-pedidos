@@ -9,7 +9,7 @@ import ScreenKeyboard from '../../components/ScreenKeyboard';
 type KeyboardMode = null | 'pager' | 'nome' | 'observacao' | 'pagamento';
 type TefStatus = null | 'aguardando' | 'aprovado' | 'negado' | 'erro';
 
-const PRINT_SERVER_URL = 'http://localhost:5555';
+const PRINT_SERVER_URL = 'http://localhost:5556';
 
 export default function CartPage() {
   const { tenant } = useTenant();
