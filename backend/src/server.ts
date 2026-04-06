@@ -48,7 +48,18 @@ app.set('io', io);
 app.set('trust proxy', 1);
 
 // Seguranca
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "blob:", "https:", "http:"],
+      connectSrc: ["'self'", "https:", "wss:"],
+      fontSrc: ["'self'", "https:", "data:"],
+    },
+  },
+}));
 
 // CORS restrito - so aceita *.xrtec1.com + localhost em dev
 app.use(cors({
