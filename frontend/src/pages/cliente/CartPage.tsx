@@ -26,7 +26,7 @@ export default function CartPage() {
   // TEF (maquininha Stone)
   const [tefStatus, setTefStatus] = useState<TefStatus>(null);
   const [tefMensagem, setTefMensagem] = useState('');
-  const [tefDadosAprovado, setTefDadosAprovado] = useState<Record<string, any> | null>(null);
+  const [, setTefDadosAprovado] = useState<Record<string, any> | null>(null);
 
   const primary = tenant?.cor_primaria || '#3B82F6';
   const secondary = tenant?.cor_secundaria || '#1E40AF';
@@ -35,7 +35,8 @@ export default function CartPage() {
   const accent = tenant?.cor_destaque || '#60A5FA';
   const modoChamada = tenant?.modo_chamada || 'pager';
   const modoTela = tenant?.modo_tela || 'monitor';
-  const isTablet = modoTela === 'tablet';
+  // modoTela disponivel para uso futuro
+  void modoTela;
   const metodosPagamento = tenant?.metodos_pagamento || ['dinheiro', 'credito', 'debito', 'voucher'];
 
   function calcItemTotal(item: typeof items[number]): number {

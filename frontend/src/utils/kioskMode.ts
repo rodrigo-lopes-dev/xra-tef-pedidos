@@ -129,7 +129,7 @@ function handleDrop(e: Event) {
 // =============================================
 
 let touchStartY = 0;
-let touchStartX = 0;
+// touchStartX reservado para uso futuro (swipe horizontal)
 let touchCount = 0;
 
 function handleTouchStart(e: TouchEvent) {
@@ -137,7 +137,6 @@ function handleTouchStart(e: TouchEvent) {
 
   touchCount = e.touches.length;
   touchStartY = e.touches[0].clientY;
-  touchStartX = e.touches[0].clientX;
 
   // Bloquear pinch zoom (2+ dedos)
   if (touchCount > 1) {
