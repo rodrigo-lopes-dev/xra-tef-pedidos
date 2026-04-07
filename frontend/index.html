@@ -7,55 +7,12 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>XRA AutoPay</title>
     <style>
-      /* Bloquear zoom e selecao no totem */
-      * { touch-action: manipulation; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
-      input, textarea { user-select: text; -webkit-user-select: text; }
       body { overscroll-behavior: none; }
     </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script>
-      // Bloquear zoom via teclado (Ctrl+/Ctrl-, F12, Ctrl+Shift+I)
-      document.addEventListener('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '0')) e.preventDefault();
-        // Bloquear F5, F11, F12 (DevTools)
-        if (e.key === 'F11' || e.key === 'F5' || e.key === 'F12') e.preventDefault();
-        // Bloquear Ctrl+R, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-        if ((e.ctrlKey || e.metaKey) && (e.key === 'r' || e.key === 'u')) e.preventDefault();
-        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) e.preventDefault();
-      });
-      // Bloquear zoom via scroll (Ctrl+scroll)
-      document.addEventListener('wheel', function(e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
-      // Bloquear menu de contexto (botao direito)
-      document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-      // Bloquear duplo toque (zoom/inspecionar)
-      var lastTap = 0;
-      document.addEventListener('touchend', function(e) {
-        var now = Date.now();
-        if (now - lastTap < 300) { e.preventDefault(); }
-        lastTap = now;
-      }, { passive: false });
-      // Bloquear duplo clique
-      document.addEventListener('dblclick', function(e) { e.preventDefault(); });
-      // Fullscreen automatico ao primeiro toque (qualquer interacao)
-      function enterFullscreen() {
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(function(){});
-        }
-      }
-      document.addEventListener('click', enterFullscreen, { once: true });
-      document.addEventListener('touchstart', enterFullscreen, { once: true });
-      // Re-entrar fullscreen se sair (ex: alt+tab volta)
-      document.addEventListener('fullscreenchange', function() {
-        if (!document.fullscreenElement) {
-          setTimeout(function() {
-            document.addEventListener('click', enterFullscreen, { once: true });
-            document.addEventListener('touchstart', enterFullscreen, { once: true });
-          }, 500);
-        }
-      });
-    </script>
+    <!-- Kiosk mode via utils/kioskMode.ts (importado no React) -->
   </body>
 </html>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTenant } from '../../contexts/TenantContext';
 import { useCart } from '../../contexts/CartContext';
 import { api } from '../../services/api';
+import '../../utils/kioskMode';
 import ProductModal from '../../components/ProductModal';
 
 interface Categoria {
