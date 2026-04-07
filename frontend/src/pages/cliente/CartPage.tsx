@@ -228,10 +228,10 @@ export default function CartPage() {
         </span>
       </header>
 
-      {/* Content */}
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', flexDirection: isTablet ? 'row' : 'column' }}>
+      {/* Content — lado a lado: itens (esquerda) + pager/finalizar (direita) */}
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', flexDirection: 'row' }}>
         {/* Itens */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '20px', maxWidth: isTablet ? undefined : '900px', margin: isTablet ? undefined : '0 auto', width: '100%' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
           {items.map((item) => (
             <div
               key={item.id}
@@ -284,17 +284,14 @@ export default function CartPage() {
           ))}
         </div>
 
-        {/* Config do pedido */}
+        {/* Config do pedido — lado direito */}
         <div style={{
-          width: isTablet ? '380px' : '100%',
-          maxWidth: isTablet ? undefined : '900px',
-          margin: isTablet ? undefined : '0 auto',
-          borderLeft: isTablet ? `1px solid ${primary}20` : 'none',
-          borderTop: isTablet ? 'none' : `1px solid ${primary}20`,
+          flex: 1,
+          borderLeft: `1px solid ${primary}20`,
           padding: '20px',
           display: 'flex',
-          flexDirection: isTablet ? 'column' : 'row',
-          flexWrap: isTablet ? undefined : 'wrap',
+          flexDirection: 'column',
+          justifyContent: 'center',
           gap: '16px',
           overflowY: 'auto',
           flexShrink: 0,
