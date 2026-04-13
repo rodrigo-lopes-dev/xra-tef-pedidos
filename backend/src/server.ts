@@ -7,12 +7,15 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import helmet from 'helmet';
+import cron from 'node-cron';
 import { Server as SocketIOServer } from 'socket.io';
 import { tenantMiddleware } from './middleware/tenantMiddleware';
 import { rateLimiter } from './middleware/rateLimiter';
 import { publicRoutes } from './routes/publicRoutes';
 import { authRoutes } from './routes/authRoutes';
 import { adminRoutes } from './routes/adminRoutes';
+import { nfcRoutes } from './routes/nfcRoutes';
+import { suspendOverdueTenants } from './cron/suspendOverdue';
 
 const app = express();
 const server = http.createServer(app);
@@ -100,6 +103,9 @@ app.use('/api/auth', authRoutes);
 // Rotas admin (protegidas por JWT)
 app.use('/api/admin', adminRoutes);
 
+// Rotas NFC (comanda cashless)
+app.use('/api/nfc', nfcRoutes);
+
 // Health check (sem tenant middleware)
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -118,6 +124,14 @@ const PORT = Number(process.env.PORT) || 5500;
 server.listen(PORT, () => {
   console.log(`[XRA AutoPay] Servidor rodando na porta ${PORT}`);
   console.log(`[XRA AutoPay] Ambiente: ${process.env.NODE_ENV || 'development'}`);
+
+  // CRON: Suspender inadimplentes todo dia as 06:00 (horario de Brasilia)
+  cron.schedule('0 6 * * *', () => {
+    console.log('[CRON] Executando verificacao de inadimplencia...');
+    suspendOverdueTenants();
+  }, { timezone: 'America/Sao_Paulo' });
+
+  console.log('[CRON] Schedule ativo: verificacao diaria as 06:00 (Brasilia)');
 });
 
 export { io };

@@ -5,6 +5,7 @@ import { supabase } from '../config/supabase';
 export interface Tenant {
   id: string;
   slug: string;
+  codigo: string;
   nome: string;
   logo_url: string | null;
   favicon_url: string | null;
@@ -107,15 +108,34 @@ export async function tenantMiddleware(
     let tenant = getCached(slug);
 
     if (!tenant) {
+      // Buscar por codigo aleatorio OU slug (sem filtrar status aqui)
+      const searchValue = slug.toUpperCase();
       const { data, error } = await supabase
         .from('ap_tenants')
         .select('*')
-        .eq('slug', slug.toLowerCase())
-        .eq('status', 'ativo')
+        .or(`codigo.eq.${searchValue},slug.eq.${slug.toLowerCase()}`)
         .single();
 
       if (error || !data) {
         res.status(404).json({ error: 'Estabelecimento nao encontrado' });
+        return;
+      }
+
+      // Verificar se está suspenso
+      if (data.status === 'suspenso') {
+        res.status(403).json({
+          error: 'Sistema temporariamente indisponivel. Entre em contato com o suporte XRTec.',
+          code: 'TENANT_SUSPENDED'
+        });
+        return;
+      }
+
+      // Verificar se está ativo
+      if (data.status !== 'ativo') {
+        res.status(403).json({
+          error: 'Estabelecimento inativo',
+          code: 'TENANT_INACTIVE'
+        });
         return;
       }
 
