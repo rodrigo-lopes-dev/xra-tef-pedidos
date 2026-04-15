@@ -14,7 +14,6 @@ import { rateLimiter } from './middleware/rateLimiter';
 import { publicRoutes } from './routes/publicRoutes';
 import { authRoutes } from './routes/authRoutes';
 import { adminRoutes } from './routes/adminRoutes';
-import { nfcRoutes } from './routes/nfcRoutes';
 import { suspendOverdueTenants } from './cron/suspendOverdue';
 
 const app = express();
@@ -103,9 +102,6 @@ app.use('/api/auth', authRoutes);
 // Rotas admin (protegidas por JWT)
 app.use('/api/admin', adminRoutes);
 
-// Rotas NFC (comanda cashless)
-app.use('/api/nfc', nfcRoutes);
-
 // Health check (sem tenant middleware)
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -119,7 +115,7 @@ app.get('*', (_req, res) => {
 });
 
 // Start
-const PORT = Number(process.env.PORT) || 5500;
+const PORT = Number(process.env.PORT) || 2930;
 
 server.listen(PORT, () => {
   console.log(`[XRA AutoPay] Servidor rodando na porta ${PORT}`);
