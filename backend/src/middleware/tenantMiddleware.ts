@@ -5,7 +5,6 @@ import { supabase } from '../config/supabase';
 export interface Tenant {
   id: string;
   slug: string;
-  codigo: string;
   nome: string;
   logo_url: string | null;
   favicon_url: string | null;
@@ -75,21 +74,20 @@ export async function tenantMiddleware(
     const host = req.hostname;
     let slug = host.split('.')[0];
 
-    // Header X-Tenant-Code tem prioridade (app mobile, API direta)
-    // Aceita codigo aleatorio (ex: X7K9M2) ou slug (ex: demo)
-    const headerCode = (req.headers['x-tenant-code'] as string || req.headers['x-tenant-slug'] as string || '').trim();
+    // Header X-Tenant-Slug para dev local ou app mobile
+    const headerSlug = (req.headers['x-tenant-slug'] as string || '').trim();
 
-    if (headerCode) {
-      slug = headerCode;
+    if (headerSlug) {
+      slug = headerSlug;
     }
 
     // Fallback para desenvolvimento local ou API
     if (slug === 'localhost' || slug === '127' || slug === 'api') {
-      if (!headerCode) {
-        res.status(400).json({ error: 'Header X-Tenant-Code obrigatorio' });
+      if (!headerSlug) {
+        res.status(400).json({ error: 'Header X-Tenant-Slug obrigatorio' });
         return;
       }
-      slug = headerCode;
+      slug = headerSlug;
     }
 
     // 2. Validar slug/codigo
@@ -108,12 +106,10 @@ export async function tenantMiddleware(
     let tenant = getCached(slug);
 
     if (!tenant) {
-      // Buscar por codigo aleatorio OU slug (sem filtrar status aqui)
-      const searchValue = slug.toUpperCase();
       const { data, error } = await supabase
         .from('ap_tenants')
         .select('*')
-        .or(`codigo.eq.${searchValue},slug.eq.${slug.toLowerCase()}`)
+        .eq('slug', slug.toLowerCase())
         .single();
 
       if (error || !data) {
