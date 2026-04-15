@@ -65,7 +65,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
         root.style.setProperty('--color-accent', data.cor_destaque);
 
         // Atualizar titulo da pagina
-        document.title = data.nome;
+        document.title = `${data.nome} | XRA AutoPay`;
 
         // Atualizar favicon se tiver
         if (data.favicon_url) {
