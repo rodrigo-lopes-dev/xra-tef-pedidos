@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTenant } from '../../contexts/TenantContext';
 import { useCart } from '../../contexts/CartContext';
 import { api } from '../../services/api';
-import '../../utils/kioskMode';
+import { ativarKiosk, desativarKiosk } from '../../utils/kioskMode';
 import ProductModal from '../../components/ProductModal';
 
 interface Categoria {
@@ -39,6 +39,12 @@ export default function HomePage() {
   const bg = tenant?.cor_fundo || '#0F172A';
   const text = tenant?.cor_texto || '#FFFFFF';
   const accent = tenant?.cor_destaque || '#60A5FA';
+
+  // Kiosk mode: ativa ao entrar no cardapio, desativa ao sair
+  useEffect(() => {
+    ativarKiosk();
+    return () => desativarKiosk();
+  }, []);
 
   useEffect(() => {
     Promise.all([

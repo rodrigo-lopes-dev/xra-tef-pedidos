@@ -347,10 +347,4 @@ function desativarKiosk() {
   console.log('[KioskMode] Desativado (senha correta)');
 }
 
-// =============================================
-// AUTO-ATIVAR ao importar
-// =============================================
-
-ativarKiosk();
-
 export { ativarKiosk, desativarKiosk };

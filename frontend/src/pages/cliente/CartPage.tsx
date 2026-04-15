@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTenant } from '../../contexts/TenantContext';
 import { useCart } from '../../contexts/CartContext';
 import { api } from '../../services/api';
+import { ativarKiosk, desativarKiosk } from '../../utils/kioskMode';
 import NumericKeypad from '../../components/NumericKeypad';
 import ScreenKeyboard from '../../components/ScreenKeyboard';
 
@@ -38,6 +39,12 @@ export default function CartPage() {
   // modoTela disponivel para uso futuro
   void modoTela;
   const metodosPagamento = tenant?.metodos_pagamento || ['dinheiro', 'credito', 'debito', 'voucher'];
+
+  // Kiosk mode: ativa ao entrar no carrinho, desativa ao sair
+  useEffect(() => {
+    ativarKiosk();
+    return () => desativarKiosk();
+  }, []);
 
   function calcItemTotal(item: typeof items[number]): number {
     const adicionaisTotal = item.adicionais.reduce((sum: number, a: { preco: number }) => sum + a.preco, 0);
